@@ -1,0 +1,28 @@
+services:
+  fluentd:
+    image: grafana/fluent-plugin-loki:master
+    command:
+      - "fluentd"
+      - "-v"
+      - "-p"
+      - "/fluentd/plugins"
+    environment:
+      LOKI_URL: http://loki:3100
+      LOKI_USERNAME:
+      LOKI_PASSWORD:
+    deploy:
+      mode: global
+    configs:
+      - source: loki_config
+        target: /fluentd/etc/loki/loki.conf
+    networks:
+      - loki
+    volumes:
+      - host_logs:/var/log
+      # Needed for journald log ingestion:
+      - /etc/machine-id:/etc/machine-id
+      - /dev/log:/dev/log
+      - /var/run/systemd/journal/:/var/run/systemd/journal/
+    logging:
+      options:
+        tag: infra.monitoring

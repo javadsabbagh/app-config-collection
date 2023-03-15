@@ -108,3 +108,28 @@ $ docker run \
 The mounted volume must contain all necessary configuration files. 
 
 > Note: The flink-conf.yaml file must have write permission so that the Docker entry point script can modify it in certain cases.
+
+
+## Old Memory Issues in Flink
+
+> Note: This cofiguration is not needed (just good to know ;-) )
+
+### Switching the Memory Allocator
+
+Flink introduced jemalloc as default memory allocator to resolve memory fragmentation problem (please refer to FLINK-19125).
+
+You could switch back to use glibc as the memory allocator to restore the old behavior or if any unexpected memory consumption or problem observed (and please report the issue via JIRA or mailing list if you found any), by setting environment variable DISABLE_JEMALLOC as true:
+
+```bash
+$ docker run \
+  --env DISABLE_JEMALLOC=true \
+  flink:latest <jobmanager|standalone-job|taskmanager>
+```
+
+For users that are still using glibc memory allocator, the glibc bug can easily be reproduced, especially while savepoints or full checkpoints with RocksDBStateBackend are created. Setting the environment variable MALLOC_ARENA_MAX can avoid unlimited memory growth:
+
+```bash
+$ docker run \
+  --env MALLOC_ARENA_MAX=1 \
+  flink:latest <jobmanager|standalone-job|taskmanager>
+```
