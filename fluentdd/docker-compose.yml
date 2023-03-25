@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+
+  fluentd:
+    container_name: fluentd
+    restart: always
+    image: chq/fluentd:v1.15
+    volumes:
+      - $PWD/fluent.conf:/fluentd/etc/fluent.conf:ro
+      # For reading/writing log files by fluentd
+      - /opt/logs:/opt/logs:ro
+      - /opt/logs/positions:/opt/logs/positions:rw
+#      - /etc/timezone:/etc/timezone:ro
+#      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Asia/Tehran
+      - LOKI_USERNAME=
+      - LOKI_PASSWORD=
+    ports:
+      - "24224:24224"
+    # For giving plugins dir use -p <plugins_dir> option
+    command: -c /fluentd/etc/fluent.conf -v
