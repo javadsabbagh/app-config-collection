@@ -1,4 +1,4 @@
-# Docker Compose Collection
+Collection of applications and thier run and management config. 
 
 ## Apache Flink
 
