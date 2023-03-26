@@ -31,7 +31,7 @@ path.logs: /var/log/elasticsearch
 path.repo: ["/opt/elastic-snapshots"]
 ```
 
-As you see there three important path variables: 
+As you see, there are three important path variables: 
 - data
 - log
 - repo

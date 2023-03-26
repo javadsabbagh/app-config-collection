@@ -23,31 +23,3 @@ $ ./pd-server --name=pd --data-dir=/tmp/pd/data --client-urls="http://127.0.0.1:
 ```bash
 $ ./tikv-server --pd-endpoints="127.0.0.1:2379" --addr="127.0.0.1:20160" --data-dir=/tmp/tikv/data --log-file=/tmp/tikv/log/tikv.log
 ```
-
-### Run Python Client
-Install python client, it's a wrapper around Rust client.
-
-```bash
-pip install tikv-client
-```
-
-Run a simple python client:
-
-```python
-from tikv_client import RawClient
-
-def connect_db():
-    return RawClient.connect(["127.0.0.1:2379"])
-
-def update_db(client):
-    client.put(b'foo', b'bar')
-    print(client.get(b'foo')) # b'bar'
-
-    client.put(b'foo', b'baz')
-    print(client.get(b'foo')) # b'baz
-
-if __name__ == "__main__":
-    client = connect_db()
-    update_db(client)
-
-```

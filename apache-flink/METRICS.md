@@ -86,7 +86,7 @@ The _**PrometheusPushGatewayReporter**_ pushes metrics to a Pushgateway, which c
 
 Please see the Prometheus documentation for use-cases.
 
-### Slf4j
+### Slf4J
 
 Type: push/identifier
 
