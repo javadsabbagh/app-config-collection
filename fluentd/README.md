@@ -2,13 +2,13 @@ https://github.com/fluent/fluentd-docker-image/blob/master/README.md
 
 ## Build docker image
 ```bash
-docker build --no-cache -t chq/fluentd:v1.15 .
+docker build --no-cache -t chq/fluentd:v1.16 .
 ```
 
 ## Run fluentd docker container
 ```bash
 mkdir -p log
-docker run -it --rm -p 24224:24224 --name chq-logger -v $(pwd)/log:/fluentd/log fluentd/fluentd:v1.15-1
+docker run -it --rm -p 24224:24224 --name chq-logger -v $(pwd)/log:/fluentd/log fluentd/fluentd:v1.16-1
 ```
 
 > Note:
@@ -55,13 +55,13 @@ docker kill -s USR1 chq-logger
 
 
 # Tags
-Tags are a major requirement on Fluentd, they allows to identify the incoming data and take routing decisions. By default the Fluentd logging driver uses the container_id as a tag (12 character ID), you can change it value with the fluentd-tag option as follows:
+Tags are a major requirement on Fluentd, they allow to identify the incoming data and take routing decisions. By default, the Fluentd logging driver uses the container_id as a tag (12 character ID), you can change it value with the fluentd-tag option as follows:
 
 ```bash
 docker run --rm --log-driver=fluentd --log-opt tag=docker.my_new_tag ubuntu echo "..."
 ```
 
-Additionally this option allows to specify some internal variables: {{.ID}}, {{.FullID}} or {{.Name}}. e.g:
+Additionally, this option allows to specify some internal variables: {{.ID}}, {{.FullID}} or {{.Name}}. e.g:
 ```bash
 docker run --rm --log-driver=fluentd --log-opt tag=docker.{{.ID}} ubuntu echo "..."
 ```
@@ -107,8 +107,8 @@ gem install fluent-plugin-elasticsearch
 [Fluentd repo](https://github.com/fluent/fluentd/tree/master/example)
 
 
-# Github docker image repo
-[Docker image repo](https://github.com/fluent/fluentd-docker-image/tree/master/v1.15)
+# GitHub docker image repo
+[Docker image repo](https://github.com/fluent/fluentd-docker-image/tree/master/v1.16)
 
 
 # Docker Options (--log-opt)
@@ -151,7 +151,12 @@ Generates event logs in nanosecond resolution. Defaults to false.
 # Practical Example
 Fluentd Logger:
 ```bash
-docker run -ti --rm --name chq-logger -p 24224:24224 -v $(pwd):/fluentd/etc -v $(pwd)/log:/fluentd/log chq/fluentd:v1.15 -c /fluentd/etc/fluent.conf -v
+docker run -ti --rm --name chq-logger -p 24224:24224 -v $(pwd):/fluentd/etc -v $(pwd)/log:/fluentd/log chq/fluentd:v1.16 -c /fluentd/etc/fluent.conf -v
+```
+
+If you want to run Fluentd with OpenSearch config:
+```bash
+docker run -ti --rm --name chq-logger -p 24224:24224 -v $(pwd):/fluentd/etc chq/fluentd:v1.16 -c /fluentd/etc/fluent-opensearch.conf -v
 ```
 
 App:

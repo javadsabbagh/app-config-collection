@@ -5,7 +5,7 @@ services:
   fluentd:
     container_name: chq-logger
     restart: always
-    image: chq/fluentd:v1.15
+    image: chq/fluentd:v1.16
     volumes:
       - $PWD/fluent.conf:/fluentd/etc/fluent.conf
       - $PWD/log:/fluentd/log
