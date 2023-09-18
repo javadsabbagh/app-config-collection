@@ -3,7 +3,7 @@ version: '3.7'
 # Common configurations for all containers
 x-minio-common: &minio-common
   image: quay.io/minio/minio:RELEASE.2023-09-16T01-01-47Z
-  command: server --console-address ":9000" /mnt/data
+  command: server --console-address ":9090" /mnt/data
   ports:
     - "9000:9000"
     - "9090:9090"
@@ -13,12 +13,12 @@ x-minio-common: &minio-common
     - MINIO_PROMETHEUS_AUTH_TYPE=public
     - MINIO_UPDATE=off
   healthcheck:
-    test: ["cmd", "curl", "-f", "http://localhost:9000/minio/health/live""]
+    test: [ "cmd", "curl", "-f", "http://localhost:9000/minio/health/live" ]
     interval: 30s
     timeout: 20s
     retries: 3
 
-service:
+services:
   minio1:
     <<: *minio-common
     hostname: minio1
