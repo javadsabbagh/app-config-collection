@@ -3,15 +3,35 @@ version: '3.7'
 # Common configurations for all containers
 x-minio-common: &minio-common
   image: quay.io/minio/minio:RELEASE.2023-09-16T01-01-47Z
-  command: server --console-address ":9090" /mnt/data
+  command: |
+    server                                       
+    --console-address ":9090"                             
+    --ftp="address=:8021"                                 
+    --ftp="passive-port-range=30000-40000"   
+    --ftp="tls-private-key=" 
+    --ftp="tls-public-cert=" 
+    /data
   ports:
     - "9000:9000"
     - "9090:9090"
+    - "8021:8021"
+    - "8022:8022"
   environment:
-    - MINIO_ACCESS_KEY=chq
-    - MINIO_SECRET_KEY=supersecret
+    # Please refer to : https://min.io/docs/minio/linux/reference/minio-server/minio-server.html
+    - MINIO_ROOT_USER=minioadmin
+    - MINIO_ROOT_PASSWORD=$minio@dmin$235
+    # WARNING: MINIO_ACCESS_KEY and MINIO_SECRET_KEY are deprecated. Please use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD
+    #- MINIO_ACCESS_KEY=Q3AM3ULO2867SPQQA43P2F
+    #- MINIO_SECRET_KEY=zuf+tfteSluvtwRu7BJ86wekitnifILbZam1KYY3TGii
     - MINIO_PROMETHEUS_AUTH_TYPE=public
     - MINIO_UPDATE=off
+  ulimits:
+    memlock:
+      soft: -1
+      hard: -1
+    nofile:
+      soft: 65536 # default file descriptor limit 1024 is too low for production servers. At least 4096 is recommended.
+      hard: 65536
   healthcheck:
     test: [ "cmd", "curl", "-f", "http://localhost:9000/minio/health/live" ]
     interval: 30s
@@ -25,7 +45,7 @@ services:
     volumes:
       - type: bind
         source: ./data
-        target: /mnt/data
+        target: /data
       - type: bind
         source: ./conf/minio.conf
         target: /etc/config.env

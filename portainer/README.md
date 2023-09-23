@@ -13,7 +13,7 @@ docker run -d -p 8000:8000 -p 9443:9443 \
 > agent and server.
 > Port 9000 is still accessible, but not recommended, for backward compatibility.
 
-### Running Portainer Edge
+### Running Portainer Agent
 For agents, we need to access over internet, as well as local network, we need to deploy agent as edge: 
 ```bash
 docker run -d \

@@ -1,5 +1,4 @@
 
-
 # Running Yugabytedb
 Yugabytedb is a Postgres compliant RDBMS with distributed sql nature. In this tutorial I'm going to use 
 yugabytedb instead of postgres. 
