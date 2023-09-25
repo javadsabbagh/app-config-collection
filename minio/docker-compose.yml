@@ -23,7 +23,8 @@ x-minio-common: &minio-common
     # Please refer to : https://min.io/docs/minio/linux/reference/minio-server/minio-server.html
     - MINIO_ROOT_USER=minioadmin
     - MINIO_ROOT_PASSWORD=$$minio@dmin$$235  # Note: $ is escaped
-    # WARNING: MINIO_ACCESS_KEY and MINIO_SECRET_KEY are deprecated. Please use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD
+    ### WARNING: MINIO_ACCESS_KEY and MINIO_SECRET_KEY are deprecated. Please use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD
+    ### They are created and managed with policies inside web console.
     #- MINIO_ACCESS_KEY=Q3AM3ULO2867SPQQA43P2F
     #- MINIO_SECRET_KEY=zuf+tfteSluvtwRu7BJ86wekitnifILbZam1KYY3TGii
     - MINIO_PROMETHEUS_AUTH_TYPE=public
@@ -52,16 +53,26 @@ services:
         source: ./data
         target: /data
 
-  minio-client:
-    image: quay.io/minio/mc:RELEASE.2023-09-22T05-07-46Z
-    depends_on:
-      - minio-server
-    stdin_open: true # docker run -i
-    tty: true        # docker run -t
-    networks:
-      - minio-net
-    entrypoint: >
-      /bin/sh -c "/usr/bin/mc"
+############# Note:
+############# For using Minio Client (mc), it's better to install it locally:
+#############    $ sudo wget -c https://dl.min.io/client/mc/release/linux-amd64/mc --output-document=/usr/local/bin/mc
+#############    $ sudo chmod +x /usr/local/bin/mc
+#############    $ mc alias set myminio/ http://MINIO-SERVER ACCESS_KEY SECRET_KEY    ## Access and secret keys should be created in Minio server
+
+
+#  minio-client:
+#    image: quay.io/minio/mc:RELEASE.2023-09-22T05-07-46Z
+#    depends_on:
+#      - minio-server
+#    stdin_open: true # docker run -i
+#    tty: true        # docker run -t
+#    networks:
+#      - minio-net
+#    command: |
+#      help
+#    entrypoint: >
+#       /usr/bin/mc config
+#      /usr/bin/mc config host add myminio http://minio-server:9000 minioadmin $$minio@dmin$$235
 #    entrypoint: >
 #      /bin/sh -c "
 #      /usr/bin/mc config;
@@ -73,5 +84,5 @@ services:
 #      "
             
 networks:
-    tikv-net:
+    minio-net:
         name: "minio-net"
