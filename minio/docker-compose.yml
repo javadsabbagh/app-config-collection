@@ -16,7 +16,10 @@ x-minio-common: &minio-common
     - "9090:9090"
     - "8021:8021"
     - "8022:8022"
+  networks:
+    - minio-net
   environment:
+    - TZ=Asia/Tehran
     # Please refer to : https://min.io/docs/minio/linux/reference/minio-server/minio-server.html
     - MINIO_ROOT_USER=minioadmin
     - MINIO_ROOT_PASSWORD=$$minio@dmin$$235  # Note: $ is escaped
@@ -39,10 +42,36 @@ x-minio-common: &minio-common
     retries: 3
 
 services:
-  minio1:
+  minio-server:
     <<: *minio-common
     hostname: minio1
     volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
       - type: bind
         source: ./data
         target: /data
+
+  minio-client:
+    image: quay.io/minio/mc:RELEASE.2023-09-22T05-07-46Z
+    depends_on:
+      - minio-server
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    networks:
+      - minio-net
+    entrypoint: >
+      /bin/sh -c "/usr/bin/mc"
+#    entrypoint: >
+#      /bin/sh -c "
+#      /usr/bin/mc config;
+#      /usr/bin/mc config host add myminio http://minio-server:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
+#      /usr/bin/mc mb myminio/test-bucket;
+#      echo 'my content' > myfile.txt;
+#      /usr/bin/mc cp myfile.txt myminio/test-bucket;
+#      exit 0;
+#      "
+            
+networks:
+    tikv-net:
+        name: "minio-net"
