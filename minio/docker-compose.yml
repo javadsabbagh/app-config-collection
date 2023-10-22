@@ -1,0 +1,88 @@
+version: '3.7'
+
+# Common configurations for all containers
+x-minio-common: &minio-common
+  image: quay.io/minio/minio:RELEASE.2023-09-16T01-01-47Z
+  command: |
+    server                                       
+    --console-address ":9090"                             
+    --ftp="address=:8021"                                 
+    --ftp="passive-port-range=30000-40000"   
+    --ftp="tls-private-key=" 
+    --ftp="tls-public-cert=" 
+    /data
+  ports:
+    - "9000:9000"
+    - "9090:9090"
+    - "8021:8021"
+    - "8022:8022"
+  networks:
+    - minio-net
+  environment:
+    - TZ=Asia/Tehran
+    # Please refer to : https://min.io/docs/minio/linux/reference/minio-server/minio-server.html
+    - MINIO_ROOT_USER=minioadmin
+    - MINIO_ROOT_PASSWORD=$$minio@dmin$$235  # Note: $ is escaped
+    ### WARNING: MINIO_ACCESS_KEY and MINIO_SECRET_KEY are deprecated. Please use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD
+    ### They are created and managed with policies inside web console.
+    #- MINIO_ACCESS_KEY=Q3AM3ULO2867SPQQA43P2F
+    #- MINIO_SECRET_KEY=zuf+tfteSluvtwRu7BJ86wekitnifILbZam1KYY3TGii
+    - MINIO_PROMETHEUS_AUTH_TYPE=public
+    - MINIO_UPDATE=off
+  ulimits:
+    memlock:
+      soft: -1
+      hard: -1
+    nofile:
+      soft: 65536 # default file descriptor limit 1024 is too low for production servers. At least 4096 is recommended.
+      hard: 65536
+  healthcheck:
+    test: [ "cmd", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+    interval: 30s
+    timeout: 20s
+    retries: 3
+
+services:
+  minio-server:
+    <<: *minio-common
+    hostname: minio1
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - type: bind
+        source: ./data
+        target: /data
+
+############# Note:
+############# For using Minio Client (mc), it's better to install it locally:
+#############    $ sudo wget -c https://dl.min.io/client/mc/release/linux-amd64/mc --output-document=/usr/local/bin/mc
+#############    $ sudo chmod +x /usr/local/bin/mc
+#############    $ mc alias set myminio/ http://MINIO-SERVER ACCESS_KEY SECRET_KEY    ## Access and secret keys should be created in Minio server
+
+
+#  minio-client:
+#    image: quay.io/minio/mc:RELEASE.2023-09-22T05-07-46Z
+#    depends_on:
+#      - minio-server
+#    stdin_open: true # docker run -i
+#    tty: true        # docker run -t
+#    networks:
+#      - minio-net
+#    command: |
+#      help
+#    entrypoint: >
+#       /usr/bin/mc config
+#      /usr/bin/mc config host add myminio http://minio-server:9000 minioadmin $$minio@dmin$$235
+#    entrypoint: >
+#      /bin/sh -c "
+#      /usr/bin/mc config;
+#      /usr/bin/mc config host add myminio http://minio-server:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
+#      /usr/bin/mc mb myminio/test-bucket;
+#      echo 'my content' > myfile.txt;
+#      /usr/bin/mc cp myfile.txt myminio/test-bucket;
+#      exit 0;
+#      "
+            
+networks:
+    minio-net:
+        name: "minio-net"

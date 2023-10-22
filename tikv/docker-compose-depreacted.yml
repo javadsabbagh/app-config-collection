@@ -1,0 +1,44 @@
+version: '3'
+services:
+    pd:
+        image: pingcap/pd:v6.5.1
+        hostname: "pd"
+        environment:
+          - TZ=Asia/Tehran
+        networks:
+          - tikv-net
+        volumes:
+          - /etc/timezone:/etc/timezone:ro
+          - /etc/localtime:/etc/localtime:ro
+#          - pd-data:/usr/share/opensearch/data:rw
+          - $PWD/entrypoints:/entrypoints:ro
+        ports:
+            - "2379:2379"
+            - "2380:2380"
+        command: /entrypoints/pd.sh
+
+    tikv:
+        image: pingcap/tikv:v6.5.1
+        hostname: "tikv"
+        environment:
+          - TZ=Asia/Tehran
+        networks:
+          - tikv-net
+        volumes:
+          - /etc/timezone:/etc/timezone:ro
+          - /etc/localtime:/etc/localtime:ro
+#          - tikv-data:/usr/share/opensearch/data:rw
+          - $PWD/entrypoints:/entrypoints:ro
+        ports:
+            - "20160:20160"
+        command: ./entrypoints/tikv.sh
+
+networks:
+    tikv-net:
+        name: "tikv"
+volumes:
+  tikv-data:
+    driver: local
+
+  pd-data:
+    driver: local
