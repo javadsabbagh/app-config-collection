@@ -6,7 +6,7 @@ docker run -d -p 8000:8000 -p 9443:9443 \
                 --restart=always \
                 -v /var/run/docker.sock:/var/run/docker.sock \
                 -v portainer_data:/data \
-                portainer/portainer-ee:2.16.2-alpine
+                portainer/portainer-ce:2.18.4-alpine
 ```
 
 > Note: older versions were using insecure port of 9000. Now, it's recommended to use secure 9443 port for communication between 
