@@ -30,6 +30,15 @@ In this regard add related options to server command:
 ```
 >  Note: you can omit tls-private-key, tls-public-key, and ssh-private-key options to use Minio's default cetrificate files.
 
+### Running MinIO Client (mc)
+For using Minio Client (mc), it's better to install it locally:
+
+```bash
+$ sudo wget -c https://dl.min.io/client/mc/release/linux-amd64/mc --output-document=/usr/local/bin/mc
+$ sudo chmod +x /usr/local/bin/mc
+$ mc alias set myminio/ http://MINIO-SERVER ACCESS_KEY SECRET_KEY    ## Access and secret keys should be created inside Minio console admin
+```
+
 ### MinIO Authentication and Authorization Using OIDC and Keycloak
 
 1- Add keycloak openid config

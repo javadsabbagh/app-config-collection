@@ -53,13 +53,6 @@ services:
         source: ./data
         target: /data
 
-############# Note:
-############# For using Minio Client (mc), it's better to install it locally:
-#############    $ sudo wget -c https://dl.min.io/client/mc/release/linux-amd64/mc --output-document=/usr/local/bin/mc
-#############    $ sudo chmod +x /usr/local/bin/mc
-#############    $ mc alias set myminio/ http://MINIO-SERVER ACCESS_KEY SECRET_KEY    ## Access and secret keys should be created in Minio server
-
-
 #  minio-client:
 #    image: quay.io/minio/mc:RELEASE.2023-09-22T05-07-46Z
 #    depends_on:
