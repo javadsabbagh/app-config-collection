@@ -2,7 +2,7 @@ version: '3.7'
 
 # Common configurations for all containers
 x-minio-common: &minio-common
-  image: quay.io/minio/minio:RELEASE.2023-09-16T01-01-47Z
+  image: minio/minio:RELEASE.2023-10-25T06-33-25Z
   command: |
     server                                       
     --console-address ":9090"                             
@@ -22,7 +22,7 @@ x-minio-common: &minio-common
     - TZ=Asia/Tehran
     # Please refer to : https://min.io/docs/minio/linux/reference/minio-server/minio-server.html
     - MINIO_ROOT_USER=minioadmin
-    - MINIO_ROOT_PASSWORD=$$minio@dmin$$235  # Note: $ is escaped
+    - MINIO_ROOT_PASSWORD=minio@dmin$$235  # Note: $ is escaped
     ### WARNING: MINIO_ACCESS_KEY and MINIO_SECRET_KEY are deprecated. Please use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD
     ### They are created and managed with policies inside web console.
     #- MINIO_ACCESS_KEY=Q3AM3ULO2867SPQQA43P2F
@@ -45,7 +45,7 @@ x-minio-common: &minio-common
 services:
   minio-server:
     <<: *minio-common
-    hostname: minio1
+    hostname: minio
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
@@ -84,5 +84,5 @@ services:
 #      "
             
 networks:
-    minio-net:
-        name: "minio-net"
+  minio-net:
+    name: "minio-net"
