@@ -3,7 +3,7 @@
 
 TODO: add changing kernel soft & hard link related configs
 
-### 1.1 Install OpenSearch 
+### 1.1 Installing OpenSearch 
 ```bash
 sudo apt install -f ./opensearch-2.9.0-linux-x64.deb
 ```
