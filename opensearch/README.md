@@ -72,6 +72,27 @@ plugins.security.authcz.admin_dn:
 plugins.security.audit.type: internal_opensearch
 ```
 
+> Note: Opensearch prefers to bind IPv6. Even you specify **network.host: 0.0.0.0**, it does not bind to local interface.
+> In this case you must set following config in **/etc/opensearch/jvm.options**:
+> ````properties
+> -Djava.net.preferIPv4Stack=true
+> ````
+> and restart the service. you can also look at [its networking document.](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-network.html#network-interface-values). 
+
+### How totally disabling IPv6 in Linux systems:
+Edit **/etc/sysctl.conf** file:
+```properties
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+```
+
+Then, reload the configs:
+```shell
+sudo sysctl -p
+```
+
+
 ### 1.3 Start OpenSearch Service
 ```bash
 sudo systemctl start opensearch.service
