@@ -30,7 +30,7 @@ Edit file `/etc/opensearch/jvm.options` and change `-Xms` and `-Xmx` options to 
 
 ```yaml
 -Xms4g
--Xmx42g
+-Xmx4g
 ```
 
 Edit file `/etc/opensearch/opensearch.yml` and set the following options in config file:

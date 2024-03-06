@@ -41,7 +41,7 @@ curl --insecure -XGET https://192.168.100.119:9200/_plugins/_security/api/intern
 curl -k -XGET GET https://192.168.100.119:9200/_plugins/_security/api/internalusers/test_use -H 'Authorization: Basic YWRtaW46YWRtaW4=' | jq
 ```
 
-### Get Rest API account info
+### Get Account Info
 
 ```shell
 curl -k -XGET https://192.168.100.119:9200/_plugins/_security/api/account \

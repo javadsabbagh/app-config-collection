@@ -1,0 +1,101 @@
+version: '3'
+services:
+  mongodb:
+      image: mongo:7.0.6
+      container_name: mongodb
+      ports:
+        - "27017:27017"
+      volumes:
+        - /home/project/mongo/data:/data/db
+      networks:
+        - graylog-net
+
+  # opensearch:
+  #     image: opensearchproject/opensearch:2.9
+  #     container_name: opensearch
+  #     ports:
+  #       - "9200:9200"
+  #     volumes:
+  #       - ./opensearch-data:/usr/share/opensearch/data
+  #     environment:
+  #       - discovery.type=single-node
+  #       # `Xms` specifies the initial memory allocation pool. `Xmx` specifies the maximum allocation pool for the Java Virtual Machine (JVM). "m" and "g" obviously stand for MB and GB.
+  #       - ES_JAVA_OPTS=-Xms1g -Xmx1g
+  #       # TODO: The following security options need to be turned off, otherwise the connection cannot be made
+  #       - plugins.security.ssl.http.enabled=false
+  #       - plugins.security.disabled=true
+  #     networks:
+  #     - graylog-net
+
+  opensearch:
+    image: opensearchproject/opensearch:2.9.0
+    container_name: opensearch
+    environment:
+      - cluster.name=chq-cluster
+      - node.name=opensearch
+      - discovery.seed_hosts=opensearch
+      - cluster.initial_cluster_manager_nodes=opensearch
+      - bootstrap.memory_lock=true  # along with the memlock settings below, disables swapping
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g  # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=admin@tata
+      #- OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}    # Sets the demo admin user password when using demo configuration, required for OpenSearch 2.12 and higher
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536  # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    volumes:
+      - ./opensearch-data:/usr/share/opensearch/data
+    ports:
+      - 9200:9200
+      - 9600:9600  # required for Performance Analyzer
+    networks:
+      - graylog-net
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.9.0
+    container_name: opensearch-dashboards
+    ports:
+      - 5601:5601
+    expose:
+      - '5601'
+    environment:
+      OPENSEARCH_HOSTS: '["https://opensearch:9200"]'
+    networks:
+      - graylog-net
+
+
+  graylog:
+      image: graylog/graylog:5.2
+      container_name: graylog
+      environment:
+      # Configuration items must start with GRAYLOG_ and be in all uppercase letters
+      # Password encryption value, cannot be less than 16 characters
+      # Run the following command to obtain: < /dev/urandom tr -dc A-Z-a-z-0-9 | head -c${1:-96};echo;
+      - GRAYLOG_PASSWORD_SECRET=H8eNmvUlceXQGLuSejtN-klXoUpBzIYGShGsyoYvIm9YdMAIOmIWDYuGpHW4DLCL10UyEs5WgaXhj5wTd8g4x-ZOZOt831E7
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://0.0.0.0:9000/
+      - GRAYLOG_WEB_ENDPOINT_URI=http://0.0.0.0:9000/api
+      # Run the following command to obtain: echo -n "Enter Password: " && head -1 </dev/stdin | tr -d '\n' | sha256sum | cut -d" " -f1
+      - GRAYLOG_ROOT_PASSWORD_SHA2=24510945175504e0de540a951f506c2dc9bc3981f31ef9ccec72aaca1636f2b3
+      #- GRAYLOG_REST_LISTEN_URI=http://0.0.0.0:12900/
+      - GRAYLOG_MONGODB_URI=mongodb://mongodb:27017/graylog
+      # Although opensearch is used, the setting item name is still elasticsearch.
+      - GRAYLOG_ELASTICSEARCH_HOSTS=https://opensearch:9200
+      - GRAYLOG_ELASTICSEARCH_USERNAME=admin
+      - GRAYLOG_ELASTICSEARCH_PASSWORD=admin@tata
+      # Configure time zone
+      - GRAYLOG_ROOT_TIMEZONE=Asia/Tehran
+      ports:
+      - "9000:9000"
+      - "12201:12201/udp"
+      networks:
+      - graylog-net
+      depends_on:
+      - mongodb
+      - opensearch
+
+networks:
+  graylog-net:
+      driver: bridg
