@@ -1,0 +1,32 @@
+version: "3.7"
+services:
+  fluentbit:
+    image: cr.fluentbit.io/fluent/fluent-bit:2.2.2
+    ports:
+      - "24224:24224"       ## Fluentd input protocol (TCP)
+      - "24224:24224/udp"   ## Fluentd input protocol (UDP)
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./clr-draw:/opt/logs:ro
+      - ./positions:/opt/logs/positions:rw
+
+  ## Sample log generator
+  flog:
+    image: mingrammer/flog
+    command: '-l'
+    depends_on:
+      - fluentbit
+    logging:
+      driver: fluentd
+      options:
+        tag: apache
+
+  ## Sample log generator (nginx format)
+  nginx:
+    image: kscarlett/nginx-log-generator
+    depends_on:
+      - fluentbit
+    logging:
+      driver: fluentd
+      options:
+        tag: nginx

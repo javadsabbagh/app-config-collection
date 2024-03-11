@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+  fluentbit:
+    image: cr.fluentbit.io/fluent/fluent-bit:2.2.2
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./custom_parsers.conf:/fluent-bit/etc/custom_parsers.conf:ro
+      - ./clr-draw:/opt/logs:ro
+      - ./positions:/opt/positions:rw
