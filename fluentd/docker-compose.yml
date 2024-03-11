@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
 
@@ -8,14 +8,24 @@ services:
     image: chq/fluentd:v1.16
     volumes:
       - $PWD/fluent-opensearch.conf:/fluentd/etc/fluent.conf:ro
-      # For reading/writing log files by fluentd
-      - /home/javad/TidDev/clr-returned-backend/log:/opt/logs:ro
-      - /home/javad/TidDev/clr-returned-backend/log/positions:/opt/logs/positions:rw
-#      - /etc/timezone:/etc/timezone:ro
-#      - /etc/localtime:/etc/localtime:ro
-    environment:
-      - TZ=Asia/Tehran
+      ## For reading/writing log files by fluentd
+      - $PWD/logs:/opt/log:ro
+      - $PWD/positions:/opt/positions:rw
+      ## Use host's timezone
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - fluent_net
     ports:
+      ## Use Fluentd as centralized log ingester
       - "24224:24224"
-    # For giving plugins dir use -p <plugins_dir> option
-    command: -c /fluentd/etc/fluent.conf -v
+    environment:
+      ## Use independent timezone for this container
+      - TZ=Asia/Tehran
+    ## Use -v for fluentd DEBUG logs and -vv for TRACE logs
+    ## For additional plugins dir use -p <plugins_dir> option
+    command: -c /fluentd/etc/fluent.conf -v -p /fluentd/plugins
+
+networks:
+  fluent_net:
+    driver: bridge
