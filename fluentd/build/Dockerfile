@@ -7,12 +7,10 @@ USER root
 # you may customize including plugins as you wish
 RUN apk add --no-cache --update --virtual .build-deps \
         sudo build-base ruby-dev \
- && mkdir /fluentd/plugins \
- && chown fluent /fluentd/plugins \
- && wget https://raw.githubusercontent.com/emsearcy/fluent-plugin-gelf/master/lib/fluent/plugin/out_gelf.rb -P /fluentd/plugins \
  && sudo gem install fluent-plugin-opensearch \
  && sudo gem install fluent-plugin-record-modifier --no-document \
- && sudo gem install fluent-plugin-rewrite-tag-filter \
+ && sudo gem install fluent-plugin-rewrite-tag-filter --no-document \
+ && wget https://raw.githubusercontent.com/emsearcy/fluent-plugin-gelf/master/lib/fluent/plugin/out_gelf.rb -P /fluentd/plugins \
  && gem install gelf \
  && sudo gem sources --clear-all \
  && apk del .build-deps \
