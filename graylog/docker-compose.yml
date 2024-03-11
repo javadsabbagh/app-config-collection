@@ -1,43 +1,70 @@
-version: '3.8'
+version: "3.8"
+
 services:
   mongodb:
-      image: mongo:7.0.6
-      container_name: mongodb
-      ports:
-        - "27017:27017"
-      volumes:
-        - /home/project/mongo/data:/data/db
-      networks:
-        - graylog-net
+    hostname: "mongodb"
+    image: "mongo:7.0.6"   # tested by mongo:5.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - "./mongodb-data:/data/db"
+    networks:
+      - graylog-net
 
   graylog:
-      image: graylog/graylog:5.2
-      container_name: graylog
-      environment:
-      # Configuration items must start with GRAYLOG_ and be in all uppercase letters
+    image: graylog/graylog:5.2.5
+    hostname: "graylog"
+    depends_on:
+      - "mongodb"
+    entrypoint: "/docker-entrypoint.sh"
+    environment:
+      GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/data/node-id"
       # Password encryption value, cannot be less than 16 characters
+      # Note: this is a password pepper used by graylog to safely store password hashes. It must be the same on all graylog instances!
       # Run the following command to obtain: < /dev/urandom tr -dc A-Z-a-z-0-9 | head -c${1:-96};echo;
-      - GRAYLOG_PASSWORD_SECRET=H8eNmvUlceXQGLuSejtN-klXoUpBzIYGShGsyoYvIm9YdMAIOmIWDYuGpHW4DLCL10UyEs5WgaXhj5wTd8g4x-ZOZOt831E7
-      - GRAYLOG_HTTP_EXTERNAL_URI=http://0.0.0.0:9000/
-      - GRAYLOG_WEB_ENDPOINT_URI=http://0.0.0.0:9000/api
+      GRAYLOG_PASSWORD_SECRET: "H8eNmvUlceXQGLuSejtN-klXoUpBzIYGShGsyoYvIm9YdMAIOmIWDYuGpHW4DLCL10UyEs5WgaXhj5wTd8g4x-ZOZOt831E7"
       # Run the following command to obtain: echo -n "Enter Password: " && head -1 </dev/stdin | tr -d '\n' | sha256sum | cut -d" " -f1
-      - GRAYLOG_ROOT_PASSWORD_SHA2=24510945175504e0de540a951f506c2dc9bc3981f31ef9ccec72aaca1636f2b3
-      #- GRAYLOG_REST_LISTEN_URI=http://0.0.0.0:12900/
-      - GRAYLOG_MONGODB_URI=mongodb://mongodb:27017/graylog
-      # Although opensearch is used, the setting item name is still elasticsearch.
-      - GRAYLOG_ELASTICSEARCH_HOSTS=https://opensearch:9200
-      - GRAYLOG_ELASTICSEARCH_USERNAME=admin
-      - GRAYLOG_ELASTICSEARCH_PASSWORD=admin@tata
-      # Configure time zone
-      - GRAYLOG_ROOT_TIMEZONE=Asia/Tehran
-      ports:
-      - "9000:9000"
-      - "12201:12201/udp"
-      networks:
+      GRAYLOG_ROOT_PASSWORD_SHA2: "24510945175504e0de540a951f506c2dc9bc3981f31ef9ccec72aaca1636f2b3"
+      GRAYLOG_HTTP_EXTERNAL_URI: "http://0.0.0.0:9000/"
+      GRAYLOG_WEB_ENDPOINT_URI: "http://0.0.0.0:9000/api"
+      #GRAYLOG_HTTP_EXTERNAL_URI: "http://127.0.0.1:9000/"
+      #GRAYLOG_WEB_ENDPOINT_URI: "http://127.0.0.1:9000/api"
+      GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
+      GRAYLOG_REPORT_DISABLE_SANDBOX: "true"
+      GRAYLOG_CA_KEYSTORE_FILE: "/usr/share/graylog/data/keystore.jks"
+      GRAYLOG_CA_PASSWORD: "verysecurepass@123"
+      ## Note: elastic user password is URL encode, e.g. admin@tata becomes : admin%40tata
+      ## Comma separated list of opensearch servers (Note: server ip mapping done in /etc/hosts)
+      GRAYLOG_ELASTICSEARCH_HOSTS: "https://admin:admin%40tata@opensearch1:9200"
+      #GRAYLOG_ENABLE_PREFLIGHT_WEB: "true"
+      ## Configure time zone
+      GRAYLOG_ROOT_TIMEZONE: "Asia/Tehran"
+      GRAYLOG_TIMEZONE: "Asia/Tehran"
+      ## Config Email Server
+      #GRAYLOG_TRANSPORT_EMAIL_ENABLED: true
+      #GRAYLOG_TRANSPORT_EMAIL_HOSTNAME: "10.200.9.6"
+      #GRAYLOG_TRANSPORT_EMAIL_PROTOCOL: "SMTP"
+      #GRAYLOG_TRANSPORT_EMAIL_PORT: 25
+      #GRAYLOG_TRANSPORT_EMAIL_AUTH_USERNAME = user
+      #GRAYLOG_TRANSPORT_EMAIL_AUTH_PASSWORD = password
+      #GRAYLOG_TRANSPORT_EMAIL_SUBJECT_PREFIX: '["graylog"]'
+      #GRAYLOG_TRANSPORT_EMAIL_FROM_EMAIL: "graylog@test.com"
+      #GRAYLOG_TRANSPORT_EMAIL_USE_AUTH: false
+      #GRAYLOG_TRANSPORT_EMAIL_USE_TLS: false
+      #GRAYLOG_TRANSPORT_EMAIL_USE_SSL: false
+    ports:
+      - "9000:9000"        # Graylog web interface and REST API
+      #- "1514:1514"        # Syslog TCP
+      #- "1514:1514/udp"    # Syslog UDP
+      - "12201:12201"      # GELF TCP
+      #- "12201:12201/udp"  # GELF UDP
+    volumes:
+      - "./hosts:/etc/hosts:ro"
+      - "./graylog-data:/usr/share/graylog/data/data"
+      - "./graylog-journal:/usr/share/graylog/data/journal"
+      - "./keystore.jks:/usr/share/graylog/data/keystore.jks"    ### Certificate and keys For TLS connections: e.g. OpenSearch, etc
+    networks:
       - graylog-net
-      depends_on:
-      - mongodb
-      - opensearch
 
 networks:
   graylog-net:
