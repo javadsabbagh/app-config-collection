@@ -24,7 +24,8 @@ services:
       - TZ=Asia/Tehran
     ## Use -v for fluentd DEBUG logs and -vv for TRACE logs
     ## For additional plugins dir use -p <plugins_dir> option
-    command: -c /fluentd/etc/fluent.conf -v -p /fluentd/plugins
+    ## Use --dry-run to validate config file
+    command: -c /fluentd/etc/fluent.conf -v -p /fluentd/plugins --dry-run
 
 networks:
   fluent_net:
