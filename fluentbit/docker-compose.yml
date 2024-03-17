@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.8"
 services:
   fluentbit:
     image: cr.fluentbit.io/fluent/fluent-bit:2.2.2

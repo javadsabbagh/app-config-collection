@@ -38,7 +38,7 @@ fluent-bit -i tail -p path=/var/log/syslog -o stdout
     Name dummy
     Dummy {"endpoint":"localhost", "value":"something"}
     Tag dummy
-
+ 
 [INPUT]
     name              tail
     path              /var/log/containers/*.log
