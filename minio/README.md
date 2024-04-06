@@ -13,7 +13,7 @@ docker run \
 ```
 
 
-### Enabling ftp server
+### Enabling FTP server
 
 Starting with MinIO Server RELEASE.2023-04-20T17-56-55Z, you can use the File Transfer Protocol (FTP) to interact with the objects on a MinIO deployment.
 In this regard add related options to server command:
@@ -47,7 +47,8 @@ mc idp openid add demo test_keycloak \
 vendor="keycloak" \
 keycloak_realm="minio" scopes="minio-authorization" \
 keycloak_admin_url="http://192.168.100.111/auth/admin" \
-client_id=minio-client client-secret=rtX713278kJGHX78OIosws09GIIKksh723o \
+client_id=minio-client \
+client-secret=rtX713278kJGHX78OIosws09GIIKksh723o \
 config_url="http://192.168.100.111/realms/minio/.well-known/openid-configuration" \
 display_name="MinIO OpenID Login" redirect_uri_dynamic="on"
 ```
@@ -60,5 +61,5 @@ mc admin service restart demo
 
 Notes:
 > Claims are defined in attributes section (tab) of keycloak web console.
-> Default "claim name" is defined "policy" in Minio, so for giving admin access for a user
-> use must set "policy" -> "consoleAdmin" in keycloak ui.
+> Default "claim name" is defined in "policy" attribute, so for giving admin access to user
+> you should define an attribute as "policy" -> "consoleAdmin" in the keycloak ui.
