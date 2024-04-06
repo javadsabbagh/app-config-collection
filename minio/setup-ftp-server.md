@@ -37,6 +37,12 @@ Connecting to SFTP by sftp client:
 sftp -P 8022 ftupuser@localhost
 ```
 
+Generating SSH key example:
+```bash
+ssh-keygen -f ~/.ssh/sftp-key
+```
+It creates key-pairs in **_/home/javad/.ssh/sftp-key_** and **_/home/javad/.ssh/sftp-key.pub_** files.
+
 ### Limitations
 - You cannot access to different versions of an object if the bucket is versioned.
 - You cannot rename an object
