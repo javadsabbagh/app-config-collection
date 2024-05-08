@@ -1,7 +1,28 @@
 ## MinIO FTP Feature: ftp/sftp
 
-Allows MinIO to serve legacy systems, and upload and download objects.
+It allows MinIO to serve legacy systems, and upload and download objects.
 FTP/SFTP is used for legacy systems that cannot use S3.
+
+### Enabling FTP server
+Starting with MinIO Server RELEASE.2023-04-20T17-56-55Z, you can use the File Transfer Protocol (FTP) to interact with the objects on a MinIO deployment.
+In this regard add related options to server command:
+```bash
+  server                                                  \
+    --console-address ":9001"                             \
+    --ftp="address=:8021"                                 \
+    --ftp="passive-port-range=30000-40000"                \
+    --ftp="tls-private-key=path/to/private.key"           \
+    --ftp="tls-public-cert=path/to/public.crt"            \
+    --sftp="address=:8022"                                \
+    --sftp="ssh-private-key=/home/miniouser/.ssh/id_rsa"  \
+    /mnt/data
+```
+>  Note: 
+> --ftp="address=:8021" is used to serve a simple FTP server (ftp://)
+> --ftp="tls-private-key=path/to/private.key" and --ftp="tls-public-cert=path/to/public.crt" are used to serve FTP over TLS (ftps://)
+> --sftp="address=:8022" and --sftp="ssh-private-key=/home/miniouser/.ssh/id_rsa" are used to serve FTP over SSH (SFTP)
+> However, you can omit tls-private-key, tls-public-key, and ssh-private-key options to use Minio's default certificate files.
+
 
 ### Setup FTP
 ```bash

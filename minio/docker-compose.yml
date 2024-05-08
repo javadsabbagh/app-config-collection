@@ -2,19 +2,17 @@ version: '3.7'
 
 # Common configurations for all containers
 x-minio-common: &minio-common
-  image: quay.io/minio/minio:RELEASE.2024-04-06T05-26-02Z
+  image: quay.io/minio/minio:RELEASE.2024-05-07T06-41-25Z
   container_name: minio
   command: |
     server                                       
-    --console-address ":9090"                             
+    --console-address ":9001"
     --ftp="address=:8021"                                 
     --ftp="passive-port-range=30000-40000"   
-    --ftp="tls-private-key=" 
-    --ftp="tls-public-cert=" 
     /data
   ports:
     - "9000:9000"
-    - "9090:9090"
+    - "9001:9001"
     - "8021:8021"
     - "8022:8022"
   networks:
@@ -39,7 +37,7 @@ x-minio-common: &minio-common
       soft: 65536 # default file descriptor limit 1024 is too low for production servers. At least 4096 is recommended.
       hard: 65536
   healthcheck:
-    test: [ "cmd", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+    test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
     interval: 30s
     timeout: 20s
     retries: 3
