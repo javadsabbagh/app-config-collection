@@ -1,0 +1,26 @@
+services:
+  ftp-server:
+    hostname: "ftp.tiddev.com"
+    image: delfer/alpine-ftp-server
+    container_name: ftpserver
+    ports:
+      - "8021:21"
+      - "21000-21010:21000-21010"
+    networks:
+      - ftp-net
+    restart: always
+    environment:
+      - TZ=Asia/Tehran
+      - ADDRESS=ftp.tiddev.com
+      ## Because, it idiotsds use | as seprarator and it is reserved character in yaml, we need to put config in multiline format
+      - USERS=|
+        ftpuser|ftp@123|/home/ftp|10000
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data:/home/ftp:rw
+
+
+networks:
+  ftp-net:
+    name: "ftp-net"
