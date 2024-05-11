@@ -1,8 +1,8 @@
 services:
-  ftp-server:
+  delfer-ftp-server:
     hostname: "ftp.tiddev.com"
     image: delfer/alpine-ftp-server
-    container_name: ftpserver
+    container_name: ftp-server
     ports:
       - "8021:21"
       - "21000-21010:21000-21010"
@@ -12,7 +12,7 @@ services:
     environment:
       - TZ=Asia/Tehran
       - ADDRESS=ftp.tiddev.com
-      ## Because, it idiotsds use | as seprarator and it is reserved character in yaml, we need to put config in multiline format
+      ## Because, it uses | as seprarator and it is reserved character in yaml, we need to put config in multiline format
       - USERS=|
         ftpuser|ftp@123|/home/ftp|10000
     volumes:
@@ -20,6 +20,21 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./data:/home/ftp:rw
 
+  gareth-ftp-server:
+    container_name: ftp-server
+    environment:
+      - FTP_PASS=ftp@123
+      - FTP_USER=ftpuser
+    image: garethflowers/ftp-server:0.7.0
+    ports:
+      - '8020-8021:20-21/tcp'
+      - '40000-40009:40000-40009/tcp'
+    volumes:
+      # Note: /home/${USER} must accomodate to given FTP_USER variable
+      - './data:/home/ftpuser:rw'
+    networks:
+      - ftp-net
+    restart: always
 
 networks:
   ftp-net:
