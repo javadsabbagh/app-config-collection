@@ -14,8 +14,11 @@ services:
       - JGROUPS_JDBC_URL=jdbc:mysql://192.168.100.117:3306/test_keycloak_db?useSSL=false&useUnicode=true&characterEncoding=UTF-8
       - JGROUPS_DB_USER=root
       - JGROUPS_DB_PASSWORD=root
-    networks:
-      - infinispan_net
+      - ISPN_BIND_ADDRESS=192.168.61.30
+    network_mode: "host"
+#    networks:
+      #- infinispan_net
+#      - keycloak-net
     ports:
       - "11222:11222"
       - "7800:7800"
@@ -50,8 +53,10 @@ services:
       - JGROUPS_JDBC_URL=jdbc:mysql://192.168.100.117:3306/test_keycloak_db?useSSL=false&useUnicode=true&characterEncoding=UTF-8
       - JGROUPS_DB_USER=root
       - JGROUPS_DB_PASSWORD=root
-    networks:
-      - infinispan_net
+      - ISPN_BIND_ADDRESS=192.168.61.30
+    #networks:
+    #  - infinispan_net
+    network_mode: "host"
     ports:
       - "11322:11222"
       - "7900:7900"
@@ -72,5 +77,9 @@ services:
       - /etc/localtime:/etc/localtime
 
 networks:
+  keycloak-net:
+    name: keycloak-23_keycloak-net
+    external: true
+
   infinispan_net:
     driver: bridge

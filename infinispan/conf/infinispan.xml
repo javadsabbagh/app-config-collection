@@ -75,7 +75,10 @@
     <server xmlns="urn:infinispan:server:14.0">
         <interfaces>
             <interface name="public">
-                <inet-address value="${infinispan.bind.address:127.0.0.1}"/>
+                <!-- Please refer to docs at https://infinispan.org/docs/stable/titles/server/server.html#server-interfaces -->
+                <!--<inet-address value="${infinispan.bind.address:127.0.0.1}"/>-->
+                <inet-address value="${env.ISPN_BIND_ADDRESS}"/>
+                <!--<match-address value="192\.168\.61\..*"/>-->
             </interface>
         </interfaces>
 
