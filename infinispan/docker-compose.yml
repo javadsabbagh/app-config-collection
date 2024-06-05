@@ -15,6 +15,7 @@ services:
       - JGROUPS_DB_USER=root
       - JGROUPS_DB_PASSWORD=root
       - ISPN_BIND_ADDRESS=192.168.61.30
+      - ISPN_BIND_PORT=11222
     network_mode: "host"
 #    networks:
       #- infinispan_net
@@ -22,21 +23,22 @@ services:
     ports:
       - "11222:11222"
       - "7800:7800"
-      # - "11221:11221" ## form memcached API
+      # - "11221:11221" ## is used for memcached API (disabled in config file)
     volumes:
-      - ./conf/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml
+      - ./conf/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml:ro
       ## Find appropriate database JAR files in Keycloak-23/lib directory: exclude io.quarkus.quarkus-jdbc-*.jar files
       ### Database JDBC driver (needed for JDBC ping jgroup)
-      - ./lib/com.mysql.mysql-connector-j-8.2.0.jar:/opt/infinispan/lib/com.mysql.mysql-connector-j-8.2.0.jar
-      #- ./lib/org.postgresql.postgresql-42.6.0.jar:/opt/infinispan/lib/org.postgresql.postgresql-42.6.0.jar
-      - ./lib/com.oracle.database.jdbc.ojdbc11-23.3.0.23.09.jar:/opt/infinispan/lib/com.oracle.database.jdbc.ojdbc11-23.3.0.23.09.jar
-      - ./lib/com.oracle.database.nls.orai18n-23.3.0.23.09.jar:/opt/infinispan/lib/com.oracle.database.nls.orai18n-23.3.0.23.09.jar
-      #- ./lib/com.microsoft.sqlserver.mssql-jdbc-12.2.0.jre11.jar:/opt/infinispan/lib/com.microsoft.sqlserver.mssql-jdbc-12.2.0.jre11.jar
+      - ./lib/com.mysql.mysql-connector-j-8.2.0.jar:/opt/infinispan/lib/com.mysql.mysql-connector-j-8.2.0.jar:ro
+      #- ./lib/org.postgresql.postgresql-42.6.0.jar:/opt/infinispan/lib/org.postgresql.postgresql-42.6.0.jar:ro
+      - ./lib/com.oracle.database.jdbc.ojdbc11-23.3.0.23.09.jar:/opt/infinispan/lib/com.oracle.database.jdbc.ojdbc11-23.3.0.23.09.jar:ro
+      - ./lib/com.oracle.database.nls.orai18n-23.3.0.23.09.jar:/opt/infinispan/lib/com.oracle.database.nls.orai18n-23.3.0.23.09.jar:ro
+      #- ./lib/com.microsoft.sqlserver.mssql-jdbc-12.2.0.jre11.jar:/opt/infinispan/lib/com.microsoft.sqlserver.mssql-jdbc-12.2.0.jre11.jar:ro
       ### Keycloak models and marshallers needed to talk infinispan
-      - ./lib/org.keycloak.keycloak-model-infinispan-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-model-infinispan-23.0.7.jar
-      - ./lib/org.keycloak.keycloak-core-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-core-23.0.7.jar
-      - ./lib/org.keycloak.keycloak-server-spi-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-server-spi-23.0.7.jar
-      - /etc/localtime:/etc/localtime
+      - ./lib/org.keycloak.keycloak-model-infinispan-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-model-infinispan-23.0.7.jar:ro
+      - ./lib/org.keycloak.keycloak-core-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-core-23.0.7.jar:ro
+      - ./lib/org.keycloak.keycloak-server-spi-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-server-spi-23.0.7.jar:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
   infinispan-2:
     image: quay.io/infinispan/server:14.0.28.Final
@@ -62,19 +64,20 @@ services:
       - "7900:7900"
       # - "11221:11221" ## form memcached API
     volumes:
-      - ./conf/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml
+      - ./conf/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml:ro
       ## Find appropriate database JAR files in Keycloak-23/lib directory: exclude io.quarkus.quarkus-jdbc-*.jar files
       ### Database JDBC driver (needed for JDBC ping jgroup)
-      - ./lib/com.mysql.mysql-connector-j-8.2.0.jar:/opt/infinispan/lib/com.mysql.mysql-connector-j-8.2.0.jar
-      #- ./lib/org.postgresql.postgresql-42.6.0.jar:/opt/infinispan/lib/org.postgresql.postgresql-42.6.0.jar
-      - ./lib/com.oracle.database.jdbc.ojdbc11-23.3.0.23.09.jar:/opt/infinispan/lib/com.oracle.database.jdbc.ojdbc11-23.3.0.23.09.jar
-      - ./lib/com.oracle.database.nls.orai18n-23.3.0.23.09.jar:/opt/infinispan/lib/com.oracle.database.nls.orai18n-23.3.0.23.09.jar
-      #- ./lib/com.microsoft.sqlserver.mssql-jdbc-12.2.0.jre11.jar:/opt/infinispan/lib/com.microsoft.sqlserver.mssql-jdbc-12.2.0.jre11.jar
+      - ./lib/com.mysql.mysql-connector-j-8.2.0.jar:/opt/infinispan/lib/com.mysql.mysql-connector-j-8.2.0.jar:ro
+      #- ./lib/org.postgresql.postgresql-42.6.0.jar:/opt/infinispan/lib/org.postgresql.postgresql-42.6.0.jar:ro
+      - ./lib/com.oracle.database.jdbc.ojdbc11-23.3.0.23.09.jar:/opt/infinispan/lib/com.oracle.database.jdbc.ojdbc11-23.3.0.23.09.jar:ro
+      - ./lib/com.oracle.database.nls.orai18n-23.3.0.23.09.jar:/opt/infinispan/lib/com.oracle.database.nls.orai18n-23.3.0.23.09.jar:ro
+      #- ./lib/com.microsoft.sqlserver.mssql-jdbc-12.2.0.jre11.jar:/opt/infinispan/lib/com.microsoft.sqlserver.mssql-jdbc-12.2.0.jre11.jar:ro
       ### Keycloak models and marshallers needed to talk infinispan
-      - ./lib/org.keycloak.keycloak-model-infinispan-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-model-infinispan-23.0.7.jar
-      - ./lib/org.keycloak.keycloak-core-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-core-23.0.7.jar
-      - ./lib/org.keycloak.keycloak-server-spi-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-server-spi-23.0.7.jar
-      - /etc/localtime:/etc/localtime
+      - ./lib/org.keycloak.keycloak-model-infinispan-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-model-infinispan-23.0.7.jar:ro
+      - ./lib/org.keycloak.keycloak-core-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-core-23.0.7.jar:ro
+      - ./lib/org.keycloak.keycloak-server-spi-23.0.7.jar:/opt/infinispan/server/lib/org.keycloak.keycloak-server-spi-23.0.7.jar:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
 networks:
   keycloak-net:
