@@ -28,6 +28,7 @@ services:
       - "49152:49152" ## Admin Console (Rest)
       # - "11221:11221" ## is used for memcached API (disabled in config file)
     volumes:
+      - ./cache:/opt/infinispan/server/data:rw
       - ./conf/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml:ro
       - ./conf/identities.batch:/user-config/identities.batch:ro
       ## Find appropriate database JAR files in Keycloak-23/lib directory: exclude io.quarkus.quarkus-jdbc-*.jar files

@@ -46,28 +46,74 @@
                 <regex>java.util.*</regex>
             </allow-list>
         </serialization>
-        <!-- Since this is a remote infinsipan cache server, we only need to config distributed
+        <!-- Since this is a remote infinsipan cache server, we only need to config distributed caches
          mirroring client distributed cache section, i.e. keycloak -->
         <distributed-cache name="sessions" owners="2">
             <encoding media-type="application/x-jboss-marshalling"/>
+            <!--
+                Please refer to the following link for online docs on cache persistence config
+                https://infinispan.org/docs/stable/titles/configuring/configuring.html#persistence
+            -->
+            <persistence passivation="false">
+                <file-store>
+                    <data path="data"/>
+                    <index path="index"/>
+                </file-store>
+            </persistence>
         </distributed-cache>
         <distributed-cache name="authenticationSessions" owners="2">
             <encoding media-type="application/x-jboss-marshalling"/>
+            <persistence passivation="false">
+                <file-store>
+                    <data path="data"/>
+                    <index path="index"/>
+                </file-store>
+            </persistence>
         </distributed-cache>
         <distributed-cache name="offlineSessions" owners="2">
             <encoding media-type="application/x-jboss-marshalling"/>
+            <persistence passivation="false">
+                <file-store>
+                    <data path="data"/>
+                    <index path="index"/>
+                </file-store>
+            </persistence>
         </distributed-cache>
         <distributed-cache name="clientSessions" owners="2">
             <encoding media-type="application/x-jboss-marshalling"/>
+            <persistence passivation="false">
+                <file-store>
+                    <data path="data"/>
+                    <index path="index"/>
+                </file-store>
+            </persistence>
         </distributed-cache>
         <distributed-cache name="offlineClientSessions" owners="2">
             <encoding media-type="application/x-jboss-marshalling"/>
+            <persistence passivation="false">
+                <file-store>
+                    <data path="data"/>
+                    <index path="index"/>
+                </file-store>
+            </persistence>
         </distributed-cache>
         <distributed-cache name="loginFailures" owners="2">
             <encoding media-type="application/x-jboss-marshalling"/>
+            <persistence passivation="false">
+                <file-store>
+                    <data path="data"/>
+                    <index path="index"/>
+                </file-store>
+            </persistence>
         </distributed-cache>
         <distributed-cache name="actionTokens" owners="2">
             <encoding media-type="application/x-jboss-marshalling"/>
+            <persistence passivation="false">
+                <file-store>
+                    <data path="data"/>
+                    <index path="index"/>
+                </file-store>
+            </persistence>
         </distributed-cache>
     </cache-container>
 
