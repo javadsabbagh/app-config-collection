@@ -14,15 +14,17 @@ services:
       - JGROUPS_JDBC_URL=jdbc:mysql://192.168.100.117:3306/test_keycloak_db?useSSL=false&useUnicode=true&characterEncoding=UTF-8
       - JGROUPS_DB_USER=root
       - JGROUPS_DB_PASSWORD=root
-      - ISPN_BIND_ADDRESS=192.168.61.30
-      - ISPN_BIND_PORT=11222
+      - ISPN_PUBLIC_IP=192.168.61.30
+      - ISPN_PUBLIC_PORT=11222
+      - ISPN_ADMIN_PORT=49152
     network_mode: "host"
-#    networks:
-      #- infinispan_net
+    #networks:
+    #  - infinispan_net
 #      - keycloak-net
     ports:
-      - "11222:11222"
-      - "7800:7800"
+      - "11222:11222" ## We configured it jut for HotRod (defaults to HotRod & Rest)
+      - "7800:7800"   ## JGroups
+      - "49152:49152" ## Admin Console (Rest)
       # - "11221:11221" ## is used for memcached API (disabled in config file)
     volumes:
       - ./conf/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml:ro

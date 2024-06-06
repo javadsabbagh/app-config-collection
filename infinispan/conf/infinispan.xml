@@ -19,10 +19,10 @@
                        initialize_sql="CREATE TABLE IF NOT EXISTS JGROUPSPING (own_addr varchar(200) NOT NULL,
                                                                                 bind_addr varchar(200) NOT NULL,
                                                                                 cluster_name varchar(200) NOT NULL,
-                                                                                updated timestamp default current_timestamp,
+                                                                                created timestamp default current_timestamp,
                                                                                 ping_data BLOB,
                                                                                 CONSTRAINT PK_JGROUPSPING PRIMARY KEY (own_addr, cluster_name));"
-                       insert_single_sql="INSERT INTO JGROUPSPING (own_addr, bind_addr, cluster_name, updated, ping_data)
+                       insert_single_sql="INSERT INTO JGROUPSPING (own_addr, bind_addr, cluster_name, created, ping_data)
                                                            VALUES (?, '${env.JGROUPS_DISCOVERY_EXTERNAL_IP}', ?, NOW(), ?);"
                        delete_single_sql="DELETE FROM JGROUPSPING WHERE own_addr=? AND cluster_name=?;"
                        select_all_pingdata_sql="SELECT ping_data, own_addr, cluster_name FROM JGROUPSPING WHERE cluster_name=?"
@@ -73,26 +73,44 @@
 
     <!-- Section 3. Infinispan Server Config -->
     <server xmlns="urn:infinispan:server:14.0">
+        <!-- Please refer to docs at https://infinispan.org/docs/stable/titles/server/server.html#server-interfaces -->
         <interfaces>
-            <interface name="public">
-                <!-- Please refer to docs at https://infinispan.org/docs/stable/titles/server/server.html#server-interfaces -->
-                <!--<inet-address value="${infinispan.bind.address:127.0.0.1}"/>-->
-                <inet-address value="${env.ISPN_BIND_ADDRESS}"/>
-                <!--<match-address value="192\.168\.61\..*"/>-->
+            <interface name="public_interface">
+                <inet-address value="${env.ISPN_PUBLIC_IP}"/>
             </interface>
+            <interface name="private_interface">
+                <loopback/>
+            </interface>
+            <!--
+            Note: Samples for interface config
+            <inet-address value="${infinispan.bind.address:127.0.0.1}"/>
+            <non-loopback/>
+            <match-interface value="eth0"/>
+            <match-interface value="eth0"/>
+            <inet-address value="10.1.2.3"/>            # exact address
+            <match-address value="192\.168\.61\..*"/>   # regex match address
+            -->
         </interfaces>
 
-        <socket-bindings default-interface="public" port-offset="${infinispan.socket.binding.port-offset:0}">
-            <socket-binding name="default" port="${infinispan.bind.port:11222}"/>
-            <!--<socket-binding name="memcached" port="11221"/> We don't need memcached! -->
+
+        <!--
+             Note: By default, it listens to rest & hotrod on one socket-binding, but we can define different socket-bindings
+                   and connect desired endpoint (connector) to them as is done here.
+         -->
+        <socket-bindings default-interface="public_interface" port-offset="${infinispan.socket.binding.port-offset:0}">
+            <socket-binding name="public_binding" interface="public_interface" port="${env.ISPN_PUBLIC_PORT}"/>
+            <socket-binding name="private_binding" interface="private_interface" port="${env.ISPN_ADMIN_PORT}"/>
+            <!--<socket-binding name="memcached_binding" port="11221"/>--> <!--We don't need memcached!-->
         </socket-bindings>
 
         <security>
-            <!--            <credential-stores>-->
-            <!--                <credential-store name="credentials" path="credentials.pfx">-->
-            <!--                    <clear-text-credential clear-text="secret"/>-->
-            <!--                </credential-store>-->
-            <!--            </credential-stores>-->
+            <!--
+            <credential-stores>
+               <credential-store name="credentials" path="credentials.pfx">
+                  <clear-text-credential clear-text="secret"/>
+               </credential-store>
+            </credential-stores>
+            -->
             <security-realms>
                 <security-realm name="default">
                     <!-- Uncomment to enable TLS on the realm -->
@@ -111,6 +129,40 @@
             </security-realms>
         </security>
 
-        <endpoints socket-binding="default" security-realm="default"/>
+        <!--
+            Separate Admin Console (REST API) and Client (Rest & HotRod API)
+            Note: rest route is necessary then rest-connector is enabled in all endpoints.
+        -->
+        <endpoints>
+            <endpoint socket-binding="public_binding" security-realm="default" admin="false">
+                <!-- Note: rest-connector is mandatory -->
+                <rest-connector/>
+                <!-- Note: external-host and external-port are not required and used in NAT configured networks (e.g. Docker, etc.) -->
+                <hotrod-connector external-host="${env.ISPN_PUBLIC_IP}"
+                                  external-port="${env.ISPN_PUBLIC_PORT}"/>
+            </endpoint>
+            <endpoint socket-binding="private_binding" security-realm="default">
+                <!--
+                Warning: ip-filter rules may not work for docker networks, because it always gives docker network gateway for bridged configuration,
+                      in these cases use firewall rules for disallowing access to private_binding port.
+                -->
+                <ip-filter>
+                    <accept from="192.168.61.0/24"/>
+                    <accept from="10.0.0.0/8"/>
+                    <accept from="127.0.0.0/8"/>
+                    <reject from="/0"/>s
+                </ip-filter>
+                <rest-connector>
+                    <authentication mechanisms="DIGEST BASIC"/>
+                </rest-connector>
+            </endpoint>
+            <!--
+            <endpoint socket-binding="memcached_binding" security-realm="default">
+                <rest-connector/>
+                <memcached-connector socket-binding="memcached_binding" cache="keycloak"
+                                     client-encoding="application/x-jboss-marshalling"/>
+            </endpoint>
+        -->
+        </endpoints>
     </server>
 </infinispan>
