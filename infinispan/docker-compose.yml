@@ -5,9 +5,9 @@ services:
     restart: always
     environment:
       - TZ=Asia/Tehran
-      - USER=admin
-      # Note: you need to escape dollar sign
-      - PASS=Test$$1234
+      - IDENTITIES_BATCH="/user-config/identities.batch"
+      #- USER=admin
+      #- PASS=Test$$1234  # Note: you need to escape dollar sign in docker-compose file
       - JGROUPS_DISCOVERY_EXTERNAL_IP=192.168.61.30
       - JGROUPS_DISCOVERY_PORT=7800
       - JGROUPS_JDBC_DRIVER=com.mysql.cj.jdbc.Driver
@@ -20,7 +20,8 @@ services:
     network_mode: "host"
     #networks:
     #  - infinispan_net
-#      - keycloak-net
+    #  - keycloak-net
+    ## Note: when running in network "host" mode, port mapping is meaningless, however it can be considered as documention.
     ports:
       - "11222:11222" ## We configured it jut for HotRod (defaults to HotRod & Rest)
       - "7800:7800"   ## JGroups
@@ -28,6 +29,7 @@ services:
       # - "11221:11221" ## is used for memcached API (disabled in config file)
     volumes:
       - ./conf/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml:ro
+      - ./conf/identities.batch:/user-config/identities.batch:ro
       ## Find appropriate database JAR files in Keycloak-23/lib directory: exclude io.quarkus.quarkus-jdbc-*.jar files
       ### Database JDBC driver (needed for JDBC ping jgroup)
       - ./lib/com.mysql.mysql-connector-j-8.2.0.jar:/opt/infinispan/lib/com.mysql.mysql-connector-j-8.2.0.jar:ro
