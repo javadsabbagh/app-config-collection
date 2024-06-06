@@ -2,3 +2,4 @@
 ## https://infinispan.org/docs/stable/titles/configuring/configuring.html#default-user-roles_security-authorization
 user create "admin" -p "Test$1234" -g admin
 user create "keycloak" -p "Striker@$9" -g application
+user create "prometheus" -p "F*ck!ng$trong@666" -g observer
