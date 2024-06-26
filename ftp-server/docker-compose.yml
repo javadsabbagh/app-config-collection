@@ -12,7 +12,7 @@ services:
     environment:
       - TZ=Asia/Tehran
       - ADDRESS=ftp.tiddev.com
-      ## Because, it uses | as seprarator and it is reserved character in yaml, we need to put config in multiline format
+      ## Because, it uses | as seprarator and it's a reserved character in yaml, we need to put config in multiline format
       - USERS=|
         ftpuser|ftp@123|/home/ftp|10000
     volumes:

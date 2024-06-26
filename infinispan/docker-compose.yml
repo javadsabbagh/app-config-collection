@@ -51,25 +51,32 @@ services:
     restart: always
     environment:
       - TZ=Asia/Tehran
-      - USER=admin
-      # Note: you need to escape dollar sign
-      - PASS=Test$$1234
+      - IDENTITIES_BATCH="/user-config/identities.batch"
+      #- USER=admin
+      #- PASS=Test$$1234  # Note: you need to escape dollar sign in docker-compose file
       - JGROUPS_DISCOVERY_EXTERNAL_IP=192.168.61.30
       - JGROUPS_DISCOVERY_PORT=7900
       - JGROUPS_JDBC_DRIVER=com.mysql.cj.jdbc.Driver
       - JGROUPS_JDBC_URL=jdbc:mysql://192.168.100.117:3306/test_keycloak_db?useSSL=false&useUnicode=true&characterEncoding=UTF-8
       - JGROUPS_DB_USER=root
       - JGROUPS_DB_PASSWORD=root
-      - ISPN_BIND_ADDRESS=192.168.61.30
+      - ISPN_PUBLIC_IP=192.168.61.30
+      - ISPN_PUBLIC_PORT=11222
+      - ISPN_ADMIN_PORT=49252
+    network_mode: "host"
     #networks:
     #  - infinispan_net
-    network_mode: "host"
+    #  - keycloak-net
+    ## Note: when running in network "host" mode, port mapping is meaningless, however it can be considered as documention.
     ports:
-      - "11322:11222"
-      - "7900:7900"
-      # - "11221:11221" ## form memcached API
+      - "11222:11222" ## We configured it jut for HotRod (defaults to HotRod & Rest)
+      - "7800:7800"   ## JGroups
+      - "49152:49152" ## Admin Console (Rest)
+      # - "11221:11221" ## is used for memcached API (disabled in config file)
     volumes:
+      - ./cache-2:/opt/infinispan/server/data:rw
       - ./conf/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml:ro
+      - ./conf/identities.batch:/user-config/identities.batch:ro
       ## Find appropriate database JAR files in Keycloak-23/lib directory: exclude io.quarkus.quarkus-jdbc-*.jar files
       ### Database JDBC driver (needed for JDBC ping jgroup)
       - ./lib/com.mysql.mysql-connector-j-8.2.0.jar:/opt/infinispan/lib/com.mysql.mysql-connector-j-8.2.0.jar:ro
@@ -85,9 +92,10 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
 networks:
-  keycloak-net:
-    name: keycloak-23_keycloak-net
-    external: true
-
   infinispan_net:
     driver: bridge
+
+  ## Note: If you want to test keycloak hotrod client on docker, both keycloak and ininispan should be on the same docker network.
+#  keycloak-net:
+#    name: keycloak-23_keycloak-net
+#    external: true
